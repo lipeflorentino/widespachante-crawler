@@ -1,0 +1,17 @@
+service: crawler
+app: widespachante-crawler
+#tenant: your-tenant-name
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  stage: dev
+  region: us-east-1
+
+functions:
+  Crawl:
+    handler: api/crawler.crawl
+    events:
+      - http: 
+          path: busca
+          method: get
