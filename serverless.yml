@@ -2,6 +2,10 @@ service: crawler
 app: widespachante-crawler
 #tenant: your-tenant-name
 
+
+plugins:
+  - serverless-offline
+  
 provider:
   name: aws
   runtime: nodejs10.x
@@ -14,4 +18,10 @@ functions:
     events:
       - http: 
           path: busca
+          method: get
+  Hello:
+    handler: api/crawler.hello
+    events:
+      - http: 
+          path: hello
           method: get
