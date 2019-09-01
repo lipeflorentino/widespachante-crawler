@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/lipeflorentino/widespachante-crawler/issues"
   },
-  "homepage": "https://github.com/lipeflorentino/widespachante-crawler#readme"
+  "homepage": "https://github.com/lipeflorentino/widespachante-crawler#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "serverless-http": "^2.3.0"
+  }
 }
