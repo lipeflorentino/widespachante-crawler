@@ -20,7 +20,8 @@ module.exports.hello = (event, context, callback) => {
 module.exports.crawl = async (event, context, callback) => {
   let result = null;
   let browser = null;
-  let response;
+  let response = {};
+  let data = null;
   try {
     browser = await chromium.puppeteer.launch({
       args: chromium.args,
@@ -28,38 +29,65 @@ module.exports.crawl = async (event, context, callback) => {
       executablePath: await chromium.executablePath,
       headless: chromium.headless,
     });
-
+    console.log('chamou!')
     let page = await browser.newPage();
 
     await page.goto(event.url || 'https://www.meudespachante.net.br/');
+    console.log('going to URL')
+    
     await page.type('#placa', 'dwk3097', {delay: 100});
     await page.type('#email', 'lipeflorentino2@gmail.com', {delay: 100});
-    await console.log('entrando com dados...')
+    
+    console.log('type values on fields')
     await page.click('#to-site')
-    response = await page
-    .waitForSelector('body > div.notificacao.status-regularizado.grid-x.align-middle.md-modal-open > div.notificacao-content.cell > h2')
+    //.waitForSelector('body > div.notificacao.status-regularizado.grid-x.align-middle.md-modal-open > div.notificacao-content.cell > h2')
+    //.waitForSelector('body > div.notificacao.consulta-excedida.grid-x.align-middle.md-modal-open > div.notificacao-content.cell > h2')
+    const data = await page
+    .waitForSelector('body > div.notificacao.horario-consulta.grid-x.align-middle.md-modal-open > div.notificacao-content.cell > h2')
     .then(async data => {
       const msg = await page.evaluate(body => body.innerText, data);
-      const res = {
+      console.log('data: ' + msg)
+      response = {
         statusCode: 200,
         headers:{
           'Access-Control-Allow-Origin':'*'
         },
-        body: {message: 'Successfull crawl!', data: msg},
+        body: JSON.stringify({
+          message: 'Go Serverless v1.0! Your function executed successfully!',
+          data: msg,
+        }),
       };
-      return res
+      return response
     }).catch(error => {
       console.log('ocorreu um erro!')
-      return {message: 'ocorreu um erro!', error: error }
+      response = {
+          statusCode: 404,
+          headers:{
+            'Access-Control-Allow-Origin':'*'
+          },
+          body: JSON.stringify({
+            message: 'erro de crawler!',
+          }),
+        };
+      return response
     })
   } catch (error) {
-    return context.fail(error);
+    console.log('deu xibu!')
+    response = {
+      statusCode: 500,
+      headers:{
+        'Access-Control-Allow-Origin':'*'
+      },
+      body: JSON.stringify({
+        message: 'erro desconhecido!',
+      }),
+    };      
   } finally {
     if (browser !== null) {
       await browser.close();
     }
   }
-  return response
+  callback(null, response)
   
 };
 
