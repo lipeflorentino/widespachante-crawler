@@ -20,6 +20,7 @@ module.exports.hello = (event, context, callback) => {
 module.exports.crawl = async (event, context, callback) => {
   let result = null;
   let browser = null;
+  let response;
   try {
     browser = await chromium.puppeteer.launch({
       args: chromium.args,
@@ -31,11 +32,26 @@ module.exports.crawl = async (event, context, callback) => {
     let page = await browser.newPage();
 
     await page.goto(event.url || 'https://www.meudespachante.net.br/');
-    
-    await page.type('#placa', 'World', {delay: 100}); // Types slower, like a user
-    const field = await page.$('#placa')
-    const label = await page.evaluate(el => el.innerText, field);
-    await console.log('campo: ' + JSON.stringify(label))
+    await page.type('#placa', 'dwk3097', {delay: 100});
+    await page.type('#email', 'lipeflorentino2@gmail.com', {delay: 100});
+    await console.log('entrando com dados...')
+    await page.click('#to-site')
+    response = await page
+    .waitForSelector('body > div.notificacao.status-regularizado.grid-x.align-middle.md-modal-open > div.notificacao-content.cell > h2')
+    .then(async data => {
+      const msg = await page.evaluate(body => body.innerText, data);
+      const res = {
+        statusCode: 200,
+        headers:{
+          'Access-Control-Allow-Origin':'*'
+        },
+        body: {message: 'Successfull crawl!', data: msg},
+      };
+      return res
+    }).catch(error => {
+      console.log('ocorreu um erro!')
+      return {message: 'ocorreu um erro!', error: error }
+    })
   } catch (error) {
     return context.fail(error);
   } finally {
@@ -43,16 +59,6 @@ module.exports.crawl = async (event, context, callback) => {
       await browser.close();
     }
   }
-  const response = {
-    statusCode: 200,
-    headers:{
-      'Access-Control-Allow-Origin':'*'
-    },
-    body: JSON.stringify({
-      message: 'successful crawl!',
-    }),
-  };
-  console.log('res: ' + JSON.stringify(response))
   return response
   
 };
