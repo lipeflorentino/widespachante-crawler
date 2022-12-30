@@ -21,7 +21,7 @@
     "express": "^4.17.1",
     "iltorb": "^2.4.3",
     "puppeteer-core": "^1.19.0",
-    "serverless": "^1.51.0",
+    "serverless": "^1.83.3",
     "serverless-http": "^2.3.0"
   }
 }
